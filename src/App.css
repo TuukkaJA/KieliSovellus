@@ -1,42 +1,88 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+body, html {
+  height: 100%;
+  margin: 0;
+}
+
+.app {
+  width: 500px;
+  padding: 20px;
+  border: 2px solid black;
+  border-radius: 10px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  background: rgb(255, 255, 255);
+  background-size: 200% 200%;
+  margin: 20px auto;
+  color: rgb(0, 0, 0);
+}
+
+.word-input {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.word-input input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.word-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.controls button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.control button:hover {
+  background-color: #0056b3;
+}
+
+@media screen and (max-width: 600px) {
+  .app {
+    width: 90%; /* Make it take most of the screen width */
+    padding: 15px;
+    margin: 10px auto;
   }
-  to {
-    transform: rotate(360deg);
+
+  .word-input {
+    flex-direction: column; /* Stack inputs vertically */
+    gap: 5px;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  .word-input input {
+    width: 90%; /* Make inputs take full width */
+    text-align: center;
+    margin: 0 auto;
   }
-}
 
-.card {
-  padding: 2em;
-}
+  .word-list {
+    flex-direction: column; /* Stack cards vertically */
+    gap: 5px;
+  }
 
-.read-the-docs {
-  color: #888;
+  .controls {
+    flex-direction: column;
+  }
+
+  .controls button {
+    width: 90%; /* Make the button take full width */
+    font-size: 14px;
+    padding: 8px;
+    margin: 0 auto;
+  }
 }

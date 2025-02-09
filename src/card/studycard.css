@@ -1,0 +1,82 @@
+/* Card container */
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 500px;
+  height: 100px;
+  margin: 0 auto;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.596);
+  padding: 0rem;
+  background: rgb(255, 255, 255);
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+/* Left side (Swedish word) */
+.left-side {
+  flex: 1;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 1);
+}
+
+.blue-text {
+  color: rgb(36, 69, 255);
+}
+
+.yellow-text {
+  color: yellow;
+}
+
+/* Right side (English translation) */
+.right-side {
+  flex: 1;
+  position: relative;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* Hidden text */
+.hidden-text {
+  visibility: visible;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  padding: 1.5rem;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.card:hover {
+  background-color: #f0f0f0;
+}
+@media screen and (max-width: 600px) {
+  .card {
+    flex-direction: column; /* Stack items vertically */
+    width: 90%; /* Use most of the screen width */
+    height: auto; /* Adjust height automatically */
+    padding: 1rem;
+  }
+
+  .left-side, .right-side {
+    font-size: 1.5rem; /* Reduce font size for smaller screens */
+    padding: 0.5rem;
+  }
+
+  .hidden-text {
+    font-size: 1.5rem;
+    padding: 1rem;
+  }
+
+  button {
+    width: 100%;
+    font-size: 1rem; /* Adjust button size */
+    padding: 0.7rem;
+  }
+}
