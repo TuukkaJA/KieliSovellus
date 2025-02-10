@@ -4,7 +4,7 @@ body, html {
 }
 
 .app {
-  width: 500px;
+  width: 600px;
   padding: 20px;
   border: 2px solid black;
   border-radius: 10px;
@@ -16,6 +16,53 @@ body, html {
   color: rgb(0, 0, 0);
 }
 
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.auth-input {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-input input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.welcome p{
+  font-size: 20px;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.welcome h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+  margin: 0 auto;
+}
+
+.logout-button{
+  color: white;
+  display: block;
+  margin-top: 10px;
+  margin-left: auto;
+  margin-bottom: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100px;
+}
+
+.welcome button:hover {
+  color: #ffffff;
+}
 .word-input {
   display: flex;
   justify-content: center;
@@ -24,9 +71,9 @@ body, html {
 }
 
 .word-input input {
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 8px;
   text-align: center;
 }
 
@@ -37,15 +84,22 @@ body, html {
 }
 
 .controls {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+  display: grid;
+  margin: 10px;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  row-gap: 10px;
 }
 
-.controls button {
+.swap button {
+  background-color: #0056b3;
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
+}
+
+.swap button:hover {
+  background-color: #00408a;
 }
 
 .control button:hover {
