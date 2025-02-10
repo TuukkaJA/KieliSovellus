@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import React from 'react';
 import StudyCard from './card/studycard';
 import SignupModal from './SignUpModal/SignupModal';
-import { db, ref, onValue, set, push, auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from './firebase';
+import { db, ref, onValue, set, push, auth, signInAnonymously, signOut } from './firebase';
+import { child, get } from 'firebase/database';
 import './App.css';
 
 function App() {
@@ -11,14 +12,86 @@ function App() {
   const [newFinnish, setNewFinnish] = useState('');
   const [isSwapped, setIsSwapped] = useState(false);
   const [user, setUser] = useState(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isSignupOpen, setIsSignupOpen] = useState(false);
 
   // Fetch words from Firebase when the component loads
+  const handleSignup = async () => {
+    if (!username.trim() || !password.trim()) {
+      alert("Please enter a username and password.");
+      return;
+    }
+
+    try {
+      const snapshot = await get(child(ref(db), `users/${username}`));
+      if (snapshot.exists()) {
+        alert("Username already exists. Choose another one.");
+        return;
+      }
+
+    const userCredential  = await signInAnonymously(auth);
+    const userId = userCredential.user.uid;
+
+    await set(ref(db, `users/${username}`), {
+      userId,
+      password,
+    });
+
+    setUser({ username, userId });
+
+    setIsSignupOpen(false);
+    
+
+  } catch (error) {
+    console.error("Signup error:", error);
+  }
+};
+
+const handleLogin = async () => {
+  if (!username.trim() || !password.trim()) {
+    alert("Please enter a username and password.");
+    return;
+  }
+
+  try {
+    const snapshot = await get(child(ref(db), `users/${username}`));
+    if (!snapshot.exists()) {
+      alert("Username not found.");
+      return;
+    }
+
+    const userData = snapshot.val();
+    if (userData.password !== password) {
+      alert("Incorrect password.");
+      return;
+    }
+
+    // Authenticate anonymously (Firebase)
+    await signInAnonymously(auth);
+
+    setUser({ username, userId: userData.userId });
+
+  } catch (error) {
+    console.error("Login error:", error);
+  }
+};
+
+const handleLogout = async () => {
+  try {
+    await signOut(auth);
+    setUser(null);
+    setUsername("");
+    setPassword("");
+    setWords([]);
+  } catch (error) {
+    console.error("Error logging out:", error.message);
+  }
+};
+
   useEffect(() => {
-    if (user) {
-      const wordsRef = ref(db, `users/${user.uid}/words`);
+    if (user && user.userId) {
+      const wordsRef = ref(db, `users/${user.userId}/words`);
       onValue(wordsRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -37,7 +110,7 @@ function App() {
   // Function to add a new words to firebase
  const addWord = () => {
     if (user && newSwedish.trim() && newFinnish.trim()) {
-      const wordsRef = ref(db, `users/${user.uid}/words`); // Reference to 'words' collection
+      const wordsRef = ref(db, `users/${user.userId}/words`); // Reference to 'words' collection
       const newWordRef = push(wordsRef); // Create a unique ID
       set(newWordRef, { swedish: newSwedish, finnish: newFinnish }) // Save data to Firebase
         .then(() => {
@@ -59,66 +132,24 @@ function App() {
     }
   };
 
-  // Sign up function
-  const handleSignup = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        setUser(userCredential.user);
-        console.log("Signed up:", userCredential.user);
-        setIsSignupOpen(false);
-      })
-      .catch((error) => {
-        console.error("Error signing up:", error.code, error.message);
-        alert(error.message);
-      });
-  };
-
-  // Login function
-  const handleLogin = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        setUser(userCredential.user);
-      })
-      .catch((error) => {
-        console.error("Error logging in:", error.message);
-        alert(error.message);
-      });
-  };
-
-  // Logout function
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        setUser(null);   // Remove user
-        setWords([]);    // Clear words list
-        setEmail('');    // Clear email input
-        setPassword(''); // Clear password input
-      })
-      .catch((error) => {
-        console.error("Error logging out:", error.message);
-        alert(error.message);
-      });
-  };
-
   return (
     <div className="app">
-
       {/* Authentication Form */}
-        <button className="logout-button" onClick={handleLogout}>Logout</button>
       <div className="auth-input">
         {user ? (
           <div className="welcome">
+            <button className="logout-button" onClick={handleLogout}>Logout</button>
             <h1>Word List</h1>
-            <p>Welcome, to your personal word list {user.email}</p>
+            <p>Welcome, to your personal word list {user.username}</p>
           </div>
         ) : (
           <div className="auth-form">
             <h1>Word List</h1>
             <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <input
               type="password"
@@ -139,8 +170,8 @@ function App() {
         <SignupModal
           isOpen={isSignupOpen}
           onClose={() => setIsSignupOpen(false)}
-          email={email}
-          setEmail={setEmail}
+          username={username}
+          setUsername={setUsername}
           password={password}
           setPassword={setPassword}
           handleSignup={handleSignup}
