@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import React from 'react';
 import StudyCard from './card/studycard';
 import SignupModal from './SignUpModal/SignupModal';
@@ -15,6 +15,9 @@ function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSignupOpen, setIsSignupOpen] = useState(false);
+  const passwordRef = useRef(null);
+  const finnishRef = useRef(null);
+  const swedishRef = useRef(null);
 
   // Fetch words from Firebase when the component loads
   const handleSignup = async () => {
@@ -107,6 +110,12 @@ const handleLogout = async () => {
     setIsSwapped(!isSwapped);
   };
 
+  useEffect(() => {
+    if (user) {
+      setTimeout(() => swedishRef.current?.focus(), 0);
+    }
+  }, [user]); // Runs whenever 'user' changes
+
   // Function to add a new words to firebase
  const addWord = () => {
     if (user && newSwedish.trim() && newFinnish.trim()) {
@@ -116,6 +125,8 @@ const handleLogout = async () => {
         .then(() => {
           setNewSwedish('');
           setNewFinnish('');
+
+          setTimeout(() => swedishRef.current?.focus(), 0);
         })
         .catch(error => {
           console.error("Error adding word:", error);
@@ -129,6 +140,51 @@ const handleLogout = async () => {
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       addWord();
+      setTimeout(() => swedishRef.current?.focus(), 0);  // Use setTimeout to ensure focus
+    }
+  };
+
+
+  const handleUsernameKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();  // Prevent form submission (if inside a form)
+      passwordRef.current?.focus();  // Move focus to the password input
+    }
+  };
+
+  const handlePasswordKeyDown = async (event) => {
+    if (event.key === 'Enter') {
+      await handleLogin();
+    }
+  };
+
+  const handleSwedishKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();  // Prevent form submission (if inside a form)
+      finnishRef.current?.focus();  // Move focus to the password input
+    }
+  };
+
+  const handleDeleteWord = async (wordToDelete) => {
+    if (!user) return;
+  
+    const wordsRef = ref(db, `users/${user.userId}/words`);
+  
+    try {
+      const snapshot = await get(wordsRef); // Get data once
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const wordKey = Object.keys(data).find(
+          (key) => data[key].swedish === wordToDelete.swedish && data[key].finnish === wordToDelete.finnish
+        );
+  
+        if (wordKey) {
+          await set(ref(db, `users/${user.userId}/words/${wordKey}`), null); // Delete from Firebase
+          setWords((prevWords) => prevWords.filter((word) => word !== wordToDelete)); // Update state
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting word:", error);
     }
   };
 
@@ -150,12 +206,16 @@ const handleLogout = async () => {
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              ref={passwordRef}
+              onKeyDown={handleUsernameKeyDown}
             />
             <input
               type="password"
               placeholder="Password"
               value={password}
+              ref={passwordRef}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handlePasswordKeyDown}
             />
 
             
@@ -185,13 +245,15 @@ const handleLogout = async () => {
             placeholder="Swedish word"
             value={newSwedish}
             onChange={(e) => setNewSwedish(e.target.value)}
-            onKeyDown={handleKeyDown} // Listen for Enter key
+            ref={swedishRef}
+            onKeyDown={handleSwedishKeyDown}
           />
           <input
             type="text"
             placeholder="Finnish word"
             value={newFinnish}
             onChange={(e) => setNewFinnish(e.target.value)}
+            ref={finnishRef}
             onKeyDown={handleKeyDown} // Listen for Enter key
           />
             <div className="swap">
@@ -203,7 +265,13 @@ const handleLogout = async () => {
       {/* Render StudyCard for each word */}
       <div className="word-list">
         {words.map((word, index) => (
-          <StudyCard key={index} swedishWord={word.swedish} finnishWord={word.finnish} isSwapped={isSwapped} />
+          <StudyCard 
+          key={index} 
+          swedishWord={word.swedish} 
+          finnishWord={word.finnish} 
+          isSwapped={isSwapped} 
+          handleDelete={() => handleDeleteWord(word)}
+          />
         ))}
       </div>
     </div>

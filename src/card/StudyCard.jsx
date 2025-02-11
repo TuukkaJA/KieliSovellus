@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
 import './studycard.css'; // Import the CSS file
 
-function StudyCard({ swedishWord, finnishWord, isSwapped }) {
+function StudyCard({ swedishWord, finnishWord, isSwapped, handleDelete }) {
   const [isHidden, setIsHidden] = useState(true); // Initially hidden
-
-  // Function to swap the words
-  const handleSwap = () => {
-    setIsSwapped(!isSwapped);
-  };
 
   // Function to toggle hidden text
   const handleClick = () => {
     setIsHidden(!isHidden);
   };
 
-  return (
-    <div className="card">
+    return (
+      <div className="card">
       {/* Left side: Always visible word */}
       <div className={`left-side ${isSwapped ? 'blue-text' : 'yellow-text'}`}>
         {isSwapped ? finnishWord : swedishWord}
@@ -30,6 +25,7 @@ function StudyCard({ swedishWord, finnishWord, isSwapped }) {
           {isHidden ? 'Click to reveal' : (isSwapped ? swedishWord : finnishWord)}
         </div>
       </div>
+      <button onClick={handleDelete}> X </button>
     </div>
   );
 }
