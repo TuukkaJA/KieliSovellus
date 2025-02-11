@@ -1,12 +1,12 @@
 import React, { useRef } from "react";
 import "./SignupModal.css";
 
-const SignupModal = ({ isOpen, onClose, setUsername, username, password, setPassword, handleSignup, setIsSignupOpen, IsSingupOpen }) => {
+const SignupModal = ({ isOpen, onClose, email, setEmail, password, setPassword, handleSignup }) => {
   const passwordRef = useRef(null);
 
   if (!isOpen) return null;
 
-  const handleUsernameKeyDown = (event) => {
+  const handleEmailKeyDown = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();  // Prevent form submission (if inside a form)
       passwordRef.current?.focus();  // Move focus to the password input
@@ -24,11 +24,11 @@ const SignupModal = ({ isOpen, onClose, setUsername, username, password, setPass
       <div className="modal">
         <h2>Sign Up</h2>
         <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          onKeyDown={handleUsernameKeyDown}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleEmailKeyDown}
         />
         <input
           ref={passwordRef}
@@ -46,3 +46,4 @@ const SignupModal = ({ isOpen, onClose, setUsername, username, password, setPass
 };
 
 export default SignupModal;
+
