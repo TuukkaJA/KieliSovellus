@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import React from "react";
-import StudyCard from "./card/studycard";
+import StudyCard from "./card/StudyCard";
 import SignupModal from "./SignUpModal/SignupModal";
 import { db, ref, onValue, set, get,  push, auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "./firebase";
 import "./App.css";
