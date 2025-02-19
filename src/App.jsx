@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import React from "react";
 import StudyCard from "./card/StudyCard";
 import SignupModal from "./SignUpModal/SignupModal";
+import ConfirmationModal from "./ConfirmationModal/ConfirmationModal";
 import { db, ref, onValue, set, get,  push, auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "./firebase";
 import "./App.css";
 
@@ -14,6 +15,8 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignupOpen, setIsSignupOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [wordToDelete, setWordToDelete] = useState(null);
   const passwordRef = useRef(null);
   const finnishRef = useRef(null);
   const swedishRef = useRef(null);
@@ -177,6 +180,40 @@ function App() {
     }
   };
 
+  const confirmDeleteWord = (word) => {
+    setWordToDelete(word);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!user || !wordToDelete) return;
+  
+    const wordsRef = ref(db, `users/${user.userId}/words`);
+  
+    try {
+      const snapshot = await get(wordsRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const wordKey = Object.keys(data).find(
+          (key) =>
+            data[key].swedish === wordToDelete.swedish &&
+            data[key].finnish === wordToDelete.finnish
+        );
+  
+        if (wordKey) {
+          await set(ref(db, `users/${user.userId}/words/${wordKey}`), null);
+          setWords((prevWords) => prevWords.filter((word) => word !== wordToDelete));
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting word:", error);
+    } finally {
+      setIsConfirmOpen(false);
+      setWordToDelete(null);
+    }
+  };
+  
+
   return (
     <div className="app">
       <div className="auth-input">
@@ -235,9 +272,21 @@ function App() {
 
       <div className="word-list">
         {words.map((word, index) => (
-          <StudyCard key={index} swedishWord={word.swedish} finnishWord={word.finnish} isSwapped={isSwapped} handleDelete={() => handleDeleteWord(word)} />
+          <StudyCard 
+          key={index} 
+          swedishWord={word.swedish} 
+          finnishWord={word.finnish} 
+          isSwapped={isSwapped} 
+          handleDelete={() => confirmDeleteWord(word)} 
+          />
         ))}
       </div>
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        word={wordToDelete}
+      />
     </div>
   );
 }
